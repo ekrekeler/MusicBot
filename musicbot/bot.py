@@ -417,7 +417,11 @@ class MusicBot(discord.Client):
     async def on_player_finished_playing(self, player, **_):
         if not player.playlist.entries and not player.current_entry and self.config.auto_playlist:
             while self.autoplaylist:
-                song_url = choice(self.autoplaylist)
+                if not self.auto_playlist:
+                    print('All songs have been played. Restarting auto playlist...')
+                    self.autoplaylist = load_file(self.config.auto_playlist_file)
+                shuffle(self.auto_playlist)
+                song_url = self.autoplaylist.pop()
                 info = await self.downloader.safe_extract_info(player.playlist.loop, song_url, download=False, process=False)
 
                 if not info:
